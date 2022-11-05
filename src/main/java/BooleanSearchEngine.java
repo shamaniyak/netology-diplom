@@ -18,7 +18,7 @@ public class BooleanSearchEngine implements SearchEngine {
         if (listOfFiles != null) {
             for (File file : listOfFiles) {
                 if (file.isFile()) {
-                    System.out.println(file.getName());
+                    //System.out.println(file.getName());
                     var doc = new PdfDocument(new PdfReader(file));
                     int pagesCount = doc.getNumberOfPages();
                     for (int i = 1; i <= pagesCount; i++) {
