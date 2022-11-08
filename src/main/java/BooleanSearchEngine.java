@@ -2,13 +2,14 @@ import com.itextpdf.kernel.pdf.PdfDocument;
 import com.itextpdf.kernel.pdf.PdfReader;
 import com.itextpdf.kernel.pdf.canvas.parser.PdfTextExtractor;
 
-import java.io.File;
-import java.io.IOException;
+import java.io.*;
 import java.util.*;
 
 public class BooleanSearchEngine implements SearchEngine {
     // Индексированные слова
-    Map<String, List<PageEntry> > indexedWords = new HashMap<>();
+    private final Map<String, List<PageEntry> > indexedWords = new HashMap<>();
+    // Список стоп слов, которые не нужно учитывать при поиске
+    private final Set<String> stopWords = new HashSet<>();
 
     public BooleanSearchEngine(File pdfsDir) throws IOException {
         // прочтите тут все pdf и сохраните нужные данные,
@@ -47,16 +48,34 @@ public class BooleanSearchEngine implements SearchEngine {
         for(var entry : indexedWords.entrySet()) {
             Collections.sort(entry.getValue());
         }
+        // Загрузка стоп слов
+        String stopWordsFile = "stop-ru.txt";
+        BufferedReader br = new BufferedReader(new InputStreamReader(new FileInputStream(stopWordsFile)));
+        String line;
+        while ((line = br.readLine()) != null) {
+            stopWords.add(line.toLowerCase());
+        }
     }
 
     @Override
-    public List<PageEntry> search(String word) {
-        // тут реализуйте поиск по слову
-        var word1 = word.toLowerCase();
-        if(indexedWords.containsKey(word1)) {
-            return indexedWords.get(word1);
+    public List<PageEntry> search(String text) {
+        // Разбить текст на слова.
+        // Пройти по всем словам и попробовать найти.
+        // Если слово в стоп листе, то пропустить.
+        // В результате будет общий список страниц, а количество найденных на каждой странице будет суммироваться
+        // для каждого слова.
+        var words = text.split("\\P{IsAlphabetic}+");
+        //System.out.println(Arrays.asList(words));
+        SearchResult searchResult = new SearchResult();
+        for(var word : words) {
+            var word1 = word.toLowerCase();
+            if(stopWords.contains(word1))
+                continue;
+            if (indexedWords.containsKey(word1)) {
+                searchResult.addPages(indexedWords.get(word1));
+            }
         }
-        return Collections.emptyList();
+        return searchResult.getPages();
     }
 
     private void addWordToIndex(String word, String pdfName, int pageNumber, int count) {
