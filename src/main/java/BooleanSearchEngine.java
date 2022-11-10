@@ -62,20 +62,23 @@ public class BooleanSearchEngine implements SearchEngine {
         // Разбить текст на слова.
         // Пройти по всем словам и попробовать найти.
         // Если слово в стоп листе, то пропустить.
-        // В результате будет общий список страниц, а количество найденных на каждой странице будет суммироваться
-        // для каждого слова.
-        var words = text.split("\\P{IsAlphabetic}+");
+        // В результате будет список страниц. У каждой найденной страницы количество слов будет равно
+        // сумме всех слов, найденных на этой странице.
+        var words = text.split("\\P{IsAlphabetic}+");// Получаем слова из запроса
         //System.out.println(Arrays.asList(words));
-        SearchResult searchResult = new SearchResult();
+        SearchResult searchResult = new SearchResult();//Создаем объект результата поиска
+        // Запускаем цикл по каждому слову из запроса
         for(var word : words) {
-            var word1 = word.toLowerCase();
-            if(stopWords.contains(word1))
-                continue;
-            if (indexedWords.containsKey(word1)) {
+            var word1 = word.toLowerCase();//Преобразуем к нижнему регистру
+            if(stopWords.contains(word1))//Если слово в стоп листе,
+                continue;//переходим к следующему слову
+            if (indexedWords.containsKey(word1)) {//Если слово есть в индексе,
+                //получаем страницы из индекса, где это слово есть и добавляем в результат
                 searchResult.addPages(indexedWords.get(word1));
             }
         }
-        return searchResult.getPages();
+        searchResult.sort();//Сортируем результат
+        return searchResult.getPages();//Возвращаем результат
     }
 
     private void addWordToIndex(String word, String pdfName, int pageNumber, int count) {

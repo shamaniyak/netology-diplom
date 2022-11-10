@@ -23,9 +23,12 @@ public class SearchServer {
                     // прочитать поисковый запрос
                     String message = in.readLine();
                     //System.out.println(message);
-                    // запустить поиск и вернуть результат клиенту
+                    // запустить поиск
                     var result = engine.search(message);
+                    // Создаем объект результата поиска, передаем ему список найденных страниц.
+                    // У SearchResult мы написали функцию toJson, поэтому мы его здесь используем.
                     var searchResult = new SearchResult(result);
+                    //Возвращаем результат клиенту в формате JSON
                     out.println(searchResult.toJson());
                 } catch (IOException e) {
                     System.out.println("Не могу стартовать сервер");

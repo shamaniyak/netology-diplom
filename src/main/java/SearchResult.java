@@ -1,9 +1,7 @@
 import com.google.gson.Gson;
 import com.google.gson.GsonBuilder;
 
-import java.util.ArrayList;
-import java.util.List;
-import java.util.Objects;
+import java.util.*;
 
 public class SearchResult {
     private final List<PageEntry> pages;
@@ -23,12 +21,16 @@ public class SearchResult {
     }
 
     void addPage(PageEntry page) {
+        //Запускаем цикл по страницам pages и ищем среди них страницу page
         for (var p : pages) {
-            if(Objects.equals(page.getPdfName(), p.getPdfName()) && page.getPage() == p.getPage()) {
+            //Сравниваем имя пдф файла и номера страницы p с именем пдф файла и номером страницы искомой страницы page
+            if(page.getPdfName().equals(p.getPdfName()) && page.getPage() == p.getPage()) {
+                //Если добавляемая страница есть в списке, то прибавляем количество слов на этой странице для p
                 p.setCount(p.getCount() + page.getCount());
-                return;
+                return;//Выходим из функции
             }
         }
+        // Если в списке pages нет добавляемой страницы, то добавим страницу в список pages
         pages.add(page);
     }
 
@@ -43,5 +45,9 @@ public class SearchResult {
                 .setPrettyPrinting()
                 .create();
         return gson.toJson(pages);
+    }
+    // Сортирует список по количеству слов от большего к меньшему
+    public void sort() {
+        Collections.sort(pages);
     }
 }
